@@ -1,10 +1,10 @@
 {
   "name": "ads-test",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -w -p ./",
-    "prepublish": "tsc -p ./"
+    "prepare": "tsc -p ./"
   },
   "main": "./out/index.js",
   "engines": {

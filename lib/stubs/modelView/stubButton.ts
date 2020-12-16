@@ -7,21 +7,17 @@ import * as azdata from 'azdata';
 import * as vscode from 'vscode';
 import { StubComponent } from './stubComponent';
 
-export class StubInputBox extends StubComponent implements azdata.InputBoxComponent {
-	readonly id = 'input-box';
+export class StubButton extends StubComponent implements azdata.ButtonComponent {
+	// Helper functions
+	click() {
+		this._onDidClickEmitter.fire(this);
+	}
 
-	value?: string;
-	ariaLive?: string;
-	placeHolder?: string;
-	inputType?: azdata.InputBoxInputType;
-	required?: boolean;
-	multiline?: boolean;
-	rows?: number;
-	columns?: number;
-	min?: number;
-	max?: number;
-	stopEnterPropagation?: boolean;
+	// Radio Button implementation
 
-	onTextChanged: vscode.Event<any> = undefined!;
-	onEnterKeyPressed: vscode.Event<string> = undefined!;
+	readonly id = 'button';
+
+	private _onDidClickEmitter = new vscode.EventEmitter<any>();
+
+	onDidClick = this._onDidClickEmitter.event;
 }
