@@ -26,9 +26,9 @@
   "author": "Azure Data Studio Team",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Microsoft/azdata-test.git"
+    "url": "https://github.com/Charles-Gagnon/azdata-test.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/azdata-test/issues"
+    "url": "https://github.com/Charles-Gagnon/azdata-test/issues"
   }
 }
