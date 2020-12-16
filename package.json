@@ -1,10 +1,10 @@
 {
-  "name": "vscode-test",
-  "version": "1.4.1",
+  "name": "ads-test",
+  "version": "1.0.0",
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -w -p ./",
-    "prepublish": "tsc -p ./"
+    "prepare": "tsc -p ./"
   },
   "main": "./out/index.js",
   "engines": {
@@ -13,20 +13,22 @@
   "dependencies": {
     "http-proxy-agent": "^2.1.0",
     "https-proxy-agent": "^2.2.4",
-    "rimraf": "^2.6.3"
+    "rimraf": "^2.6.3",
+    "typemoq": "^2.1.0"
   },
   "devDependencies": {
-    "@types/node": "8",
+    "@types/azdata": "^1.25.0",
+    "@types/node": "^12.11.7",
     "@types/rimraf": "^2.0.2",
-    "typescript": "^3.4.3"
+    "typescript": "^4.1.0-dev.20200824"
   },
   "license": "MIT",
-  "author": "Visual Studio Code Team",
+  "author": "Azure Data Studio Team",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Microsoft/vscode-test.git"
+    "url": "https://github.com/Microsoft/ads-test.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/vscode-test/issues"
+    "url": "https://github.com/Microsoft/ads-test/issues"
   }
 }
