@@ -1,5 +1,5 @@
 {
-  "name": "ads-test",
+  "name": "azdata-test",
   "version": "1.0.0",
   "scripts": {
     "compile": "tsc -p ./",
@@ -26,9 +26,9 @@
   "author": "Azure Data Studio Team",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Microsoft/ads-test.git"
+    "url": "https://github.com/Microsoft/azdata-test.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/ads-test/issues"
+    "url": "https://github.com/Microsoft/azdata-test/issues"
   }
 }

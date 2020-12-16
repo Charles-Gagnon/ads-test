@@ -1,5 +1,5 @@
 <p>
-  <h1 align="center">ads-test</h1>
+  <h1 align="center">azdata-test</h1>
 </p>
 
 This module helps you test Azure Data Studio extensions.
@@ -17,10 +17,10 @@ Supported:
 
 This package provides a set of basic stubs and mocks to help test various parts of the Azure Data Studio extensibility layer which are difficult or repetitive for extensions to implement themselves.
 
-These are located in the `lib/mocks` and `lib/stubs` folders. 
+These are located in the `lib/mocks` and `lib/stubs` folders.
 ## Usage
 
-See [./sample](./sample) for a runnable sample, with [Azure DevOps Pipelines](https://github.com/microsoft/ads-test/blob/master/sample/azure-pipelines.yml) and [Travis CI](https://github.com/microsoft/ads-test/blob/master/.travis.yml) configuration.
+See [./sample](./sample) for a runnable sample, with [Azure DevOps Pipelines](https://github.com/microsoft/azdata-test/blob/master/sample/azure-pipelines.yml) and [Travis CI](https://github.com/microsoft/azdata-test/blob/master/.travis.yml) configuration.
 
 ```ts
 async function go() {
