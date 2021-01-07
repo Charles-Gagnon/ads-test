@@ -19,10 +19,10 @@ export class StubRadioButton extends StubComponent implements azdata.RadioButton
 	readonly id = 'radio-button';
 
 	private _onDidClickEmitter = new vscode.EventEmitter<any>();
-	private _onChangedEmitter = new vscode.EventEmitter<boolean>();
+	private _onDidChangeCheckedStateEmitter = new vscode.EventEmitter<boolean>();
 
 	onDidClick = this._onDidClickEmitter.event;
-	onChanged = this._onChangedEmitter.event;
+	onDidChangeCheckedState = this._onDidChangeCheckedStateEmitter.event;
 
 	label?: string;
 	value?: string;
