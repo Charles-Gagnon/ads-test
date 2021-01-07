@@ -295,6 +295,13 @@ declare module 'azdata' {
 		onRowSelected: vscode.Event<DeclarativeTableRowSelectedEvent>;
 	}
 
+	export interface RadioButtonComponent {
+		/**
+		 * An event called when the value of radio button changes
+		 */
+		onChanged: vscode.Event<boolean>;
+	}
+
 	/*
 	 * Add optional azureAccount for connectionWidget.
 	 */
