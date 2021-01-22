@@ -10,7 +10,7 @@ import * as cp from 'child_process';
 import * as request from './request';
 import * as del from './del';
 import {
-	getVSCodeDownloadUrl,
+	getAzureDataStudioDownloadUrl as getAzureDataStudioDownloadUrl,
 	urlToOptions,
 	downloadDirToExecutablePath,
 	insidersDownloadDirToExecutablePath,
@@ -20,21 +20,21 @@ import {
 } from './util';
 
 const extensionRoot = process.cwd();
-const vscodeTestDir = path.resolve(extensionRoot, '.vscode-test');
+const adsTestDir = path.resolve(extensionRoot, '.ads-test');
 
-const vscodeStableReleasesAPI = `https://update.code.visualstudio.com/api/releases/stable`;
+const azureDataStudioStableReleasesAPI = `https://azuredatastudio-update.azurewebsites.net/api/releases/stable`;
 
 async function fetchLatestStableVersion(): Promise<string> {
-	const versions = await request.getJSON(vscodeStableReleasesAPI);
+	const versions = await request.getJSON(azureDataStudioStableReleasesAPI);
 	if (!versions || !Array.isArray(versions) || !versions[0]) {
-		throw Error('Failed to get latest VS Code version');
+		throw Error('Failed to get latest Azure Data Studio version');
 	}
 
 	return versions[0];
 }
 
 async function isValidVersion(version: string) {
-	const validVersions: string[] = await request.getJSON(vscodeStableReleasesAPI);
+	const validVersions: string[] = await request.getJSON(azureDataStudioStableReleasesAPI);
 	return version === 'insiders' || validVersions.indexOf(version) !== -1;
 }
 
@@ -44,38 +44,38 @@ async function isValidVersion(version: string) {
  */
 type StringLiteralUnion<T extends U, U = string> = T | (U & {});
 export type DownloadVersion = StringLiteralUnion<'insiders' | 'stable'>;
-export type DownloadPlatform = StringLiteralUnion<'darwin' | 'win32-archive' | 'win32-x64-archive' | 'linux-x64'>;
+export type DownloadPlatform = StringLiteralUnion<'darwin' | 'win32-x64-archive' | 'linux-x64'>;
 
 /**
- * Download a copy of VS Code archive to `.vscode-test`.
+ * Download a copy of Azure Data Studio archive to `.ads-test`.
  *
- * @param version The version of VS Code to download such as '1.32.0'. You can also use
+ * @param version The version of Azure Data Studio to download such as '1.32.0'. You can also use
  * `'stable'` for downloading latest stable release.
  * `'insiders'` for downloading latest Insiders.
  */
-async function downloadVSCodeArchive(version: DownloadVersion, platform?: DownloadPlatform): Promise<string> {
-	if (!fs.existsSync(vscodeTestDir)) {
-		fs.mkdirSync(vscodeTestDir);
+async function downloadAzureDataStudioArchive(version: DownloadVersion, platform?: DownloadPlatform): Promise<string> {
+	if (!fs.existsSync(adsTestDir)) {
+		fs.mkdirSync(adsTestDir);
 	}
 
 	return new Promise((resolve, reject) => {
-		const downloadUrl = getVSCodeDownloadUrl(version, platform);
-		console.log(`Downloading VS Code ${version} from ${downloadUrl}`);
+		const downloadUrl = getAzureDataStudioDownloadUrl(version, platform);
+		console.log(`Downloading Azure Data Studio ${version} from ${downloadUrl}`);
 		const requestOptions = urlToOptions(downloadUrl);
 
 		https.get(requestOptions, res => {
 			if (res.statusCode !== 302) {
-				reject('Failed to get VS Code archive location');
+				reject('Failed to get Azure Data Studio archive location');
 			}
 			const archiveUrl = res.headers.location;
 			if (!archiveUrl) {
-				reject('Failed to get VS Code archive location');
+				reject('Failed to get Azure Data Studio archive location');
 				return;
 			}
 
 			const archiveRequestOptions = urlToOptions(archiveUrl);
 			if (archiveUrl.endsWith('.zip')) {
-				const archivePath = path.resolve(vscodeTestDir, `vscode-${version}.zip`);
+				const archivePath = path.resolve(adsTestDir, `ads-${version}.zip`);
 				const outStream = fs.createWriteStream(archivePath);
 				outStream.on('close', () => {
 					resolve(archivePath);
@@ -87,7 +87,7 @@ async function downloadVSCodeArchive(version: DownloadVersion, platform?: Downlo
 					})
 					.on('error', e => reject(e));
 			} else {
-				const zipPath = path.resolve(vscodeTestDir, `vscode-${version}.tgz`);
+				const zipPath = path.resolve(adsTestDir, `ads-${version}.tgz`);
 				const outStream = fs.createWriteStream(zipPath);
 				outStream.on('close', () => {
 					resolve(zipPath);
@@ -104,15 +104,15 @@ async function downloadVSCodeArchive(version: DownloadVersion, platform?: Downlo
 }
 
 /**
- * Unzip a .zip or .tar.gz VS Code archive
+ * Unzip a .zip or .tar.gz Azure Data Studio archive
  */
-function unzipVSCode(vscodeArchivePath: string) {
-	// The 'vscode-1.32' out of '.../vscode-1.32.zip'
-	const dirName = path.parse(vscodeArchivePath).name;
-	const extractDir = path.resolve(vscodeTestDir, dirName);
+function unzipAzureDataStudio(azureDataStudioArchivePath: string) {
+	// The 'ads-1.32' out of '.../ads-1.32.zip'
+	const dirName = path.parse(azureDataStudioArchivePath).name;
+	const extractDir = path.resolve(adsTestDir, dirName);
 
 	let res: cp.SpawnSyncReturns<string>;
-	if (vscodeArchivePath.endsWith('.zip')) {
+	if (azureDataStudioArchivePath.endsWith('.zip')) {
 		if (process.platform === 'win32') {
 			res = cp.spawnSync('powershell.exe', [
 				'-NoProfile',
@@ -121,47 +121,48 @@ function unzipVSCode(vscodeArchivePath: string) {
 				'-NonInteractive',
 				'-NoLogo',
 				'-Command',
-				`Microsoft.PowerShell.Archive\\Expand-Archive -Path "${vscodeArchivePath}" -DestinationPath "${extractDir}"`
+				`Microsoft.PowerShell.Archive\\Expand-Archive -Path "${azureDataStudioArchivePath}" -DestinationPath "${extractDir}"`
 			]);
 		} else {
-			res = cp.spawnSync('unzip', [vscodeArchivePath, '-d', `${extractDir}`]);
+			res = cp.spawnSync('unzip', [azureDataStudioArchivePath, '-d', `${extractDir}`]);
 		}
 	} else {
 		// tar does not create extractDir by default
 		if (!fs.existsSync(extractDir)) {
 			fs.mkdirSync(extractDir);
 		}
-		res = cp.spawnSync('tar', ['-xzf', vscodeArchivePath, '-C', extractDir]);
+		res = cp.spawnSync('tar', ['-xzf', azureDataStudioArchivePath, '-C', extractDir]);
 	}
 
 	if (res && !(res.status === 0 && res.signal === null)) {
-		throw Error(`Failed to unzip downloaded vscode at ${vscodeArchivePath}`);
+		throw Error(`Failed to unzip downloaded Azure Data Studio at ${azureDataStudioArchivePath}`);
 	}
 }
 
 /**
- * Download and unzip a copy of VS Code in `.vscode-test`. The paths are:
- * - `.vscode-test/vscode-<VERSION>`. For example, `./vscode-test/vscode-1.32.0`
- * - `.vscode-test/vscode-insiders`.
+ * Download and unzip a copy of Azure Data Studio in `.ads-test`. The paths are:
+ * - `.ads-test/ads-<VERSION>`. For example, `./ads-test/ads-1.32.0`
+ * - `.ads-test/ads-insiders`.
  *
- * *If a local copy exists at `.vscode-test/vscode-<VERSION>`, skip download.*
+ * *If a local copy exists at `.ads-test/ads-<VERSION>`, skip download.*
  *
- * @param version The version of VS Code to download such as `1.32.0`. You can also use
+ * @param version The version of Azure Data Studio to download such as `1.32.0`. You can also use
  * `'stable'` for downloading latest stable release.
  * `'insiders'` for downloading latest Insiders.
  * When unspecified, download latest stable version.
  *
- * @returns Pormise of `vscodeExecutablePath`.
+ * @returns Promise of `azureDataStudioExecutablePath`.
  */
-export async function downloadAndUnzipVSCode(version?: DownloadVersion, platform?: DownloadPlatform): Promise<string> {
+export async function downloadAndUnzipAzureDataStudio(version?: DownloadVersion, platform?: DownloadPlatform): Promise<string> {
 	if (version) {
 		if (version === 'stable') {
+            console.log('fetch latest stable');
 			version = await fetchLatestStableVersion();
 		} else {
 			/**
 			 * Only validate version against server when no local download that matches version exists
 			 */
-			if (!fs.existsSync(path.resolve(vscodeTestDir, `vscode-${version}`))) {
+			if (!fs.existsSync(path.resolve(adsTestDir, `ads-${version}`))) {
 				if (!(await isValidVersion(version))) {
 					throw Error(`Invalid version ${version}`);
 				}
@@ -169,9 +170,10 @@ export async function downloadAndUnzipVSCode(version?: DownloadVersion, platform
 		}
 	} else {
 		version = await fetchLatestStableVersion();
-	}
+    }
+    console.log(`version ${version}`);
 
-	const downloadedPath = path.resolve(vscodeTestDir, `vscode-${version}`);
+	const downloadedPath = path.resolve(adsTestDir, `ads-${version}`);
 	if (fs.existsSync(downloadedPath)) {
 		if (version === 'insiders') {
 			const { version: currentHash, date: currentDate } = insidersDownloadDirMetadata(downloadedPath);
@@ -180,7 +182,7 @@ export async function downloadAndUnzipVSCode(version?: DownloadVersion, platform
 				systemDefaultPlatform
 			);
 			if (currentHash === latestHash) {
-				console.log(`Found .vscode-test/vscode-insiders matching latest Insiders release. Skipping download.`);
+				console.log(`Found .ads-test/ads-insiders matching latest Insiders release. Skipping download.`);
 				return Promise.resolve(insidersDownloadDirToExecutablePath(downloadedPath));
 			} else {
 				try {
@@ -195,28 +197,28 @@ export async function downloadAndUnzipVSCode(version?: DownloadVersion, platform
 				}
 			}
 		} else {
-			console.log(`Found .vscode-test/vscode-${version}. Skipping download.`);
+			console.log(`Found .ads-test/ads-${version}. Skipping download.`);
 
 			return Promise.resolve(downloadDirToExecutablePath(downloadedPath));
 		}
 	}
 
 	try {
-		const vscodeArchivePath = await downloadVSCodeArchive(version, platform);
-		if (fs.existsSync(vscodeArchivePath)) {
-			unzipVSCode(vscodeArchivePath);
-			console.log(`Downloaded VS Code ${version} into .vscode-test/vscode-${version}`);
+		const azureDataStudioArchivePath = await downloadAzureDataStudioArchive(version, platform);
+		if (fs.existsSync(azureDataStudioArchivePath)) {
+			unzipAzureDataStudio(azureDataStudioArchivePath);
+			console.log(`Downloaded Azure Data Studio ${version} into .ads-test/ads-${version}`);
 			// Remove archive
-			fs.unlinkSync(vscodeArchivePath);
+			fs.unlinkSync(azureDataStudioArchivePath);
 		}
 	} catch (err) {
 		console.error(err);
-		throw Error(`Failed to download and unzip VS Code ${version}`);
+		throw Error(`Failed to download and unzip Azure Data Studio ${version}`);
 	}
 
 	if (version === 'insiders') {
-		return Promise.resolve(insidersDownloadDirToExecutablePath(path.resolve(vscodeTestDir, `vscode-${version}`)));
+		return Promise.resolve(insidersDownloadDirToExecutablePath(path.resolve(adsTestDir, `ads-${version}`)));
 	} else {
-		return downloadDirToExecutablePath(path.resolve(vscodeTestDir, `vscode-${version}`));
+		return downloadDirToExecutablePath(path.resolve(adsTestDir, `ads-${version}`));
 	}
 }

@@ -16,19 +16,18 @@ switch (process.platform) {
 		systemDefaultPlatform = 'darwin';
 		break;
 	case 'win32':
-		systemDefaultPlatform = 'win32-archive';
+		systemDefaultPlatform = 'win32-x64-archive';
 		break;
 	default:
 		systemDefaultPlatform = 'linux-x64';
 }
 
-export function getVSCodeDownloadUrl(version: string, platform?: DownloadPlatform) {
+export function getAzureDataStudioDownloadUrl(version: string, platform?: DownloadPlatform) {
 	const downloadPlatform = platform || systemDefaultPlatform;
-
 	if (version === 'insiders') {
-		return `https://update.code.visualstudio.com/latest/${downloadPlatform}/insider`;
-	}
-	return `https://update.code.visualstudio.com/${version}/${downloadPlatform}/stable`;
+        return `https://azuredatastudio-update.azurewebsites.net/latest/${downloadPlatform}/insider`;
+    }
+    return `https://azuredatastudio-update.azurewebsites.net/${version}/${downloadPlatform}/stable`;
 }
 
 const HttpsProxyAgent = require('https-proxy-agent');
@@ -59,21 +58,21 @@ export function urlToOptions(url: string): https.RequestOptions {
 
 export function downloadDirToExecutablePath(dir: string) {
 	if (process.platform === 'win32') {
-		return path.resolve(dir, 'Code.exe');
+		return path.resolve(dir, 'azuredatastudio.exe');
 	} else if (process.platform === 'darwin') {
-		return path.resolve(dir, 'Visual Studio Code.app/Contents/MacOS/Electron');
+		return path.resolve(dir, 'Azure Data Studio.app/Contents/MacOS/Electron');
 	} else {
-		return path.resolve(dir, 'VSCode-linux-x64/code');
+		return path.resolve(dir, 'azuredatastudio-linux-x64/azuredatastudio');
 	}
 }
 
 export function insidersDownloadDirToExecutablePath(dir: string) {
 	if (process.platform === 'win32') {
-		return path.resolve(dir, 'Code - Insiders.exe');
+		return path.resolve(dir, 'azuredatastudio-insiders.exe');
 	} else if (process.platform === 'darwin') {
-		return path.resolve(dir, 'Visual Studio Code - Insiders.app/Contents/MacOS/Electron');
+		return path.resolve(dir, 'Azure Data Studio - Insiders.app/Contents/MacOS/Electron');
 	} else {
-		return path.resolve(dir, 'VSCode-linux-x64/code-insiders');
+		return path.resolve(dir, 'azuredatastudio-linux-x64/azuredatastudio');
 	}
 }
 
@@ -82,9 +81,9 @@ export function insidersDownloadDirMetadata(dir: string) {
 	if (process.platform === 'win32') {
 		productJsonPath = path.resolve(dir, 'resources/app/product.json');
 	} else if (process.platform === 'darwin') {
-		productJsonPath = path.resolve(dir, 'Visual Studio Code - Insiders.app/Contents/Resources/app/product.json');
+		productJsonPath = path.resolve(dir, 'Azure Data Studio - Insiders.app/Contents/Resources/app/product.json');
 	} else {
-		productJsonPath = path.resolve(dir, 'VSCode-linux-x64/resources/app/product.json');
+		productJsonPath = path.resolve(dir, 'azuredatastudio-linux-x64/resources/app/product.json');
 	}
 	const productJson = require(productJsonPath);
 
@@ -95,19 +94,19 @@ export function insidersDownloadDirMetadata(dir: string) {
 }
 
 export async function getLatestInsidersMetadata(platform: string) {
-	const remoteUrl = `https://update.code.visualstudio.com/api/update/${platform}/insider/latest`;
+	const remoteUrl = `https://azuredatastudio-update.azurewebsites.net/api/update/${platform}/insider/latest`;
 	return await request.getJSON(remoteUrl);
 }
 
 /**
- * Resolve the VS Code cli path from executable path returned from `downloadAndUnzipVSCode`.
+ * Resolve the Azure Data Studio cli path from executable path returned from `downloadAndUnzipAzureDataStudio`.
  * You can use this path to spawn processes for extension management. For example:
  *
  * ```ts
  * const cp = require('child_process');
- * const { downloadAndUnzipVSCode, resolveCliPathFromExecutablePath } = require('vscode-test')
- * const vscodeExecutablePath = await downloadAndUnzipVSCode('1.36.0');
- * const cliPath = resolveCliPathFromExecutablePath(vscodeExecutablePath);
+ * const { downloadAndUnzipAzureDataStudio, resolveCliPathFromExecutablePath } = require('azdata-test')
+ * const azureDataStudioExecutablePath = await downloadAndUnzipAzureDataStudio('1.36.0');
+ * const cliPath = resolveCliPathFromExecutablePath(azureDataStudioExecutablePath);
  *
  * cp.spawnSync(cliPath, ['--install-extension', '<EXTENSION-ID-OR-PATH-TO-VSIX>'], {
  *   encoding: 'utf-8',
@@ -115,22 +114,22 @@ export async function getLatestInsidersMetadata(platform: string) {
  * });
  * ```
  *
- * @param vscodeExecutablePath The `vscodeExecutablePath` from `downloadAndUnzipVSCode`.
+ * @param azureDataStudioExecutablePath The `azureDataStudioExecutablePath` from `downloadAndUnzipAzureDataStudio`.
  */
-export function resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath: string) {
+export function resolveCliPathFromAzureDataStudioExecutablePath(azureDataStudioExecutablePath: string) {
 	if (process.platform === 'win32') {
-		if (vscodeExecutablePath.endsWith('Code - Insiders.exe')) {
-			return path.resolve(vscodeExecutablePath, '../bin/code-insiders.cmd');
+		if (azureDataStudioExecutablePath.endsWith('azuredatastudio-insiders.exe')) {
+			return path.resolve(azureDataStudioExecutablePath, '../bin/azuredatastudio-insiders.cmd');
 		} else {
-			return path.resolve(vscodeExecutablePath, '../bin/code.cmd');
+			return path.resolve(azureDataStudioExecutablePath, '../bin/azuredatastudio.cmd');
 		}
 	} else if (process.platform === 'darwin') {
-		return path.resolve(vscodeExecutablePath, '../../../Contents/Resources/app/bin/code');
+		return path.resolve(azureDataStudioExecutablePath, '../../../Contents/Resources/app/bin/code');
 	} else {
-		if (vscodeExecutablePath.endsWith('code-insiders')) {
-			return path.resolve(vscodeExecutablePath, '../bin/code-insiders');
+		if (azureDataStudioExecutablePath.endsWith('azuredatastudio-insiders')) {
+			return path.resolve(azureDataStudioExecutablePath, '../bin/azuredatastudio-insiders');
 		} else {
-			return path.resolve(vscodeExecutablePath, '../bin/code');
+			return path.resolve(azureDataStudioExecutablePath, '../bin/azuredatastudio');
 		}
 	}
 }

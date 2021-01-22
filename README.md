@@ -69,16 +69,16 @@ async function go() {
 		})
 
 		/**
-		 * Noop, since 1.36.1 already downloaded to .vscode-test/vscode-1.36.1
+		 * Noop, since 1.36.1 already downloaded to .ads-test/ads-1.36.1
 		 */
-		await downloadAndUnzipVSCode('1.36.1')
+		await downloadAndUnzipAzureDataStudio('1.36.1')
 
 		/**
-		 * Manually download VS Code 1.35.0 release for testing.
+		 * Manually download Azure Data Studio 1.35.0 release for testing.
 		 */
-		const vscodeExecutablePath = await downloadAndUnzipVSCode('1.35.0')
+		const azureDataStudioExecutablePath = await downloadAndUnzipAzureDataStudio('1.35.0')
 		await runTests({
-			vscodeExecutablePath,
+			azureDataStudioExecutablePath,
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [testWorkspace]
@@ -87,18 +87,18 @@ async function go() {
 		/**
 		 * Install Python extension
 		 */
-		const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath)
+		const cliPath = resolveCliPathFromAzureDataStudioExecutablePath(azureDataStudioExecutablePath)
 		cp.spawnSync(cliPath, ['--install-extension', 'ms-python.python'], {
 			encoding: 'utf-8',
 			stdio: 'inherit'
 		})
 
 		/**
-		 * - Add additional launch flags for VS Code
+		 * - Add additional launch flags for Azure Data Studio
 		 * - Pass custom environment variables to test runner
 		 */
 		await runTests({
-			vscodeExecutablePath,
+			azureDataStudioExecutablePath,
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [
@@ -109,18 +109,6 @@ async function go() {
 			// Custom environment variables for extension test script
 			extensionTestsEnv: { foo: 'bar' }
 		})
-
-		/**
-		 * Use win64 instead of win32 for testing Windows
-		 */
-		if (process.platform === 'win32') {
-			await runTests({
-				extensionDevelopmentPath,
-				extensionTestsPath,
-				version: '1.40.0',
-				platform: 'win32-x64-archive'
-			});
-		}
 
 	} catch (err) {
 		console.error('Failed to run tests')
