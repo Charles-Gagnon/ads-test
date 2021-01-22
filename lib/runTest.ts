@@ -4,32 +4,32 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as cp from 'child_process';
-import { downloadAndUnzipVSCode, DownloadVersion, DownloadPlatform } from './download';
+import { downloadAndUnzipAzureDataStudio, DownloadVersion, DownloadPlatform } from './download';
 
 export interface TestOptions {
 	/**
-	 * The VS Code executable path used for testing.
+	 * The Azure Data Studio executable path used for testing.
 	 *
-	 * If not passed, will use `options.version` to download a copy of VS Code for testing.
+	 * If not passed, will use `options.version` to download a copy of Azure Data Studio for testing.
 	 * If `version` is not specified either, will download and use latest stable release.
 	 */
-	vscodeExecutablePath?: string;
+	azureDataStudioExecutablePath?: string;
 
 	/**
-	 * The VS Code version to download. Valid versions are:
+	 * The Azure Data Studio version to download. Valid versions are:
 	 * - `'stable'`
 	 * - `'insiders'`
 	 * - `'1.32.0'`, `'1.31.1'`, etc
 	 *
 	 * Defaults to `stable`, which is latest stable version.
 	 *
-	 * *If a local copy exists at `.vscode-test/vscode-<VERSION>`, skip download.*
+	 * *If a local copy exists at `.ads-test/ads-<VERSION>`, skip download.*
 	 */
 	version?: DownloadVersion;
 
 	/**
-	 * The VS Code platform to download. If not specified, defaults to:
-	 * - Windows: `win32-archive`
+	 * The Azure Data Studio platform to download. If not specified, defaults to:
+	 * - Windows: `win32-x64-archive`
 	 * - macOS: `darwin`
 	 * - Linux: `linux-x64`
 	 *
@@ -66,11 +66,11 @@ export interface TestOptions {
 	};
 
 	/**
-	 * A list of launch arguments passed to VS Code executable, in addition to `--extensionDevelopmentPath`
+	 * A list of launch arguments passed to Azure Data Studio executable, in addition to `--extensionDevelopmentPath`
 	 * and `--extensionTestsPath` which are provided by `extensionDevelopmentPath` and `extensionTestsPath`
 	 * options.
 	 *
-	 * If the first argument is a path to a file/folder/workspace, the launched VS Code instance
+	 * If the first argument is a path to a file/folder/workspace, the launched Azure Data Studio instance
 	 * will open it.
 	 *
 	 * See `code --help` for possible arguments.
@@ -79,13 +79,13 @@ export interface TestOptions {
 }
 
 /**
- * Run VS Code extension test
+ * Run Azure Data Studio extension test
  *
- * @returns The exit code of the command to launch VS Code extension test
+ * @returns The exit code of the command to launch Azure Data Studio extension test
  */
 export async function runTests(options: TestOptions): Promise<number> {
-	if (!options.vscodeExecutablePath) {
-		options.vscodeExecutablePath = await downloadAndUnzipVSCode(options.version, options.platform);
+	if (!options.azureDataStudioExecutablePath) {
+		options.azureDataStudioExecutablePath = await downloadAndUnzipAzureDataStudio(options.version, options.platform);
 	}
 
 	let args = [
@@ -99,7 +99,7 @@ export async function runTests(options: TestOptions): Promise<number> {
 		args = options.launchArgs.concat(args);
 	}
 
-	return innerRunTests(options.vscodeExecutablePath, args, options.extensionTestsEnv);
+	return innerRunTests(options.azureDataStudioExecutablePath, args, options.extensionTestsEnv);
 }
 
 async function innerRunTests(
